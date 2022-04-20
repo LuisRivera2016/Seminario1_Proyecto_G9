@@ -8,13 +8,15 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
+import { CountdownComponent } from './components/countdown/countdown.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     NotFoundComponent,
-    NavBarComponent
+    NavBarComponent,
+    CountdownComponent
   ],
   imports: [
     BrowserModule,
