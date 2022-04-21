@@ -1,0 +1,33 @@
+{
+  "name": "base_datos",
+  "version": "1.0.0",
+  "description": "Base de datos con comunicacion con arduino",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Grupo_10",
+  "license": "ISC",
+  "dependencies": {
+    "amazon-cognito-identity-js": "^5.2.8",
+    "aws-amplify": "^4.3.20",
+    "aws-sdk": "^2.1079.0",
+    "axios": "^0.26.1",
+    "base64-img": "^1.0.4",
+    "blueimp-md5": "^2.19.0",
+    "bootstrap": "^5.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-generator": "^4.16.1",
+    "jquery": "^3.6.0",
+    "md5": "^2.3.0",
+    "mysql": "^2.18.1",
+    "popper.js": "^1.16.1",
+    "pug": "^3.0.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "mongodb": "^4.1.0",
+    "serialport": "^9.2.0"
+  }
+}
