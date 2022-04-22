@@ -500,9 +500,101 @@ function TraducirDescripcion(){
 
 }
 
+const optionsRekognition = {
+  region: 'us-east-2',
+  accessKeyId: 'AKIAW2CKO7KN3MUSJ4U2',
+  secretAccessKey: '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'
+}
 
+async function ejecutarConsulta(consulta) {
+  return new Promise((resolve, reject) => {
+    con.query(consulta, function(error, response) {
+      if (error) {
+        console.log(error);
+        return reject(new Error("Error al procesar la petición"));
+      } else return resolve(response);      
+    });
+  });
+}
 
+function obtenerInfoJugadorRekognition() {
+  app.get('/api/jugadores/buscar', async (req, res) => {
+    // Validar que exista la propiedad base64 en la petición    
+    if (!req.body.base64) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Error al procesar la petición: verifique el contenido de la petición."
+      });      
+    }
+    // Obtener el nombre del jugador
+    try {
+      // Obtener el nombre del jugador usando Rekognition
+      let result = await detectarJugador(req.body.base64);
+      // Si se produjo algún error o el resultado es indenfinido
+      if (!result) {
+        return res.status(500).json({
+          estado: 'ERROR',
+          mensaje: 'Se produjo un error al procesar la petición'
+        });        
+      }      
+      // Si se obtuvo algún resultado de Rekognition
+      if (result.CelebrityFaces.length > 0) {
+        // Obtener el nombre del jugador
+        const nombre = result.CelebrityFaces[0].Name;
+        // Consulta para obtener la información del usuario
+        const consulta = `SELECT * FROM Jugador WHERE Nombre = '${nombre}'`;
+        // Ejecutar la consulta
+        try {
+          // Obtener la información de la base de datos
+          let info = await ejecutarConsulta(consulta); 
+          // Si la consulta no devolvió ningún resultado
+          if (info.length === 0) {
+            return res.status(404).json({
+              estado: "ERROR",
+              mensaje: "No se encontró ninguna coincidencia"
+            });
+          }
+          // Devolver la información del jugador
+          return res.status(200).json({
+            estado: "OK",
+            result: info
+          });
+        } catch (error) {          
+          return res.status(500).json({
+            estado: 'ERROR',
+            mensaje: "Se produjo un error al procesar la petición"
+          });
+        }        
+      }
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      });      
+    }    
+  });
+}
 
+async function detectarJugador(imgBase64) {
+  // Obtener el buffer de la imagen en base64
+  const bufferImage = Buffer.from(imgBase64, 'base64');
+  // Crear objeto de parámetros
+  const params = {
+    Image: {
+      Bytes: bufferImage
+    }
+  }
+  // Crear objeto de Rekognition
+  const rekognition = new AWS.Rekognition(optionsRekognition);
+  // Tratar de detectar al jugador    
+  try {
+    const result = await rekognition.recognizeCelebrities(params).promise();
+    console.log(result);
+    return result;  // Retornar el resultado
+  } catch (err) {
+    console.log('Error: ', err) // Retornar undefined
+  }
+}
 
 
 
@@ -533,6 +625,7 @@ function iniciarAPI() {
         InformacionUsuario();
         ActualizarInformacion();
         TraducirDescripcion();
+        obtenerInfoJugadorRekognition();
 
       } catch (error) {
         //antiError();
