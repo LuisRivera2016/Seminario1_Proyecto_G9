@@ -426,78 +426,84 @@ function ActualizarInformacion(){
 }
 
 function TraducirDescripcion(){
-  try {
-    app.post('/traducirDescripcion', (req, res) => {
-      //Primero necesitamos extraer el texto de la imagen
-      console.log("Traduciendo.");
-      AWS.config.update({
-        region: 'us-east-1', // se coloca la region del bucket 
-        accessKeyId: 'AKIARBGTLGJNMUVUHD4J',
-        secretAccessKey: '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'
-      });
-      var datos = req.body;
-      var id = datos.id;
-      var idiomaObjetivo = datos.idioma;
-      var descripcionImagen = "";
-      try {
-          consultar = "SELECT descripcion FROM Jugador WHERE idJugador = "+id+";"
-          try{
-            var query = con.query(consultar,  function(error, result){
-              if(error){
-                  throw error;
-              }else{
-                try {
-                  var text = result[0].descripcion;
-                } catch (error) {
-                  res.send({ descripcion: "No se puede traducir la descripcion , traslate no encontro texto." ,traduccion: "Null" })
-                  return;
-                }
-                var params = {
-                  SourceLanguageCode: 'auto',
-                  TargetLanguageCode: idiomaObjetivo,
-                  Text: text 
-                };
-                var translate = new AWS.Translate();
-                translate.translateText(params, function (err, data) {
-                  if (err) {
-                    res.send({ error: err })
-                  } else {
-                    console.log(data);
-                    res.send({ descripcion: text, traduccion: data.TranslatedText })
+    try {
+      app.post('/traducirDescripcion', (req, res) => {
+        //Primero necesitamos extraer el texto de la imagen
+        console.log("Traduciendo.");
+        AWS.config.update({
+          region: 'us-east-1', // se coloca la region del bucket 
+          accessKeyId: 'AKIARBGTLGJNMUVUHD4J',
+          secretAccessKey: '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'
+        });
+        var datos = req.body;
+        var name = datos.nombre;
+        var idiomaObjetivo = datos.idioma;
+        //var descripcionImagen = "";
+        try {
+            consultar = "SELECT * FROM Jugador WHERE nombre=\""+name+"\";";
+            console.log(consultar);
+            try{
+              var query = con.query(consultar,  function(error, result){
+                if(error){
+                    throw error;
+                }else{
+                  try {
+                    var text = "Nombre: " + result[0].Nombre + ", ";
+                    text +=     "Posicion: " + result[0].Posicion + ", ";
+                    text +=     "Edad: " + result[0].Edad + ", ";
+                    text +=     "Equipo actual: " + result[0].Equipo_Actual + ", ";
+                    text +=     "Alias: " + result[0].Alias + ", ";
+                    
+                  } catch (error) {
+                    res.send({ alerta: false, mensaje:"No se puede traducir la descripcion , traslate no encontro al jugador con ese nombre."})
+                    return;
                   }
-                });
-              }
-          });
-          }catch(error){
-            let a =  {"error": "No existe el id de esa foto."};
-            console.log(a);
-            res.send(a);
-          }
-      } catch (error) {
-        mensaje = "No se encontro el id de la foto. ";
-        let a =  {"alerta": mensaje, "valor": false};
-        console.log(a);
-        res.send(a);
-        
-      }
-
-
+                  var params = {
+                    SourceLanguageCode: 'auto',
+                    TargetLanguageCode: idiomaObjetivo,
+                    Text: text 
+                  };
+                  var translate = new AWS.Translate();
+                  translate.translateText(params, function (err, data) {
+                    if (err) {
+                      res.send({ error: err })
+                    } else {
+                      console.log(data);
+                      res.send({ alerta: true, original: text, mensaje: data.TranslatedText })
+                    }
+                  });
+                }
+            });
+            }catch(error){
+              let a =  {"error": "No existe el jugador"};
+              console.log(a);
+              res.send(a);
+            }
+        } catch (error) {
+          mensaje = "No se encontro el nombre del jugador. ";
+          let a =  {"alerta": mensaje, "valor": false};
+          console.log(a);
+          res.send(a);
           
-               
-               
-                
+        }
+  
+  
             
-    
-  });
-  } catch (error) {
-    let a = [ {"alerta": "Verificar los parametros enviados..." , "valor": false}];
-    console.log(a);
-    res.send(a);
-  }
-
-
-
-
+                 
+                 
+                  
+              
+      
+    });
+    } catch (error) {
+      let a = [ {"alerta": "Verificar los parametros enviados..." , "valor": false}];
+      console.log(a);
+      res.send(a);
+    }
+  
+  
+  
+  
 }
 
 const optionsRekognition = {
