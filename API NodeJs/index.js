@@ -6,7 +6,7 @@ var mariaDB = require('mysql');
 const http = require("http");
 const host = "localhost";
 const ports = 8000;
-const fs = require('fs').promises;
+const fs = require('fs');
 
 //Variables para peticiones
 const express = require('express');
@@ -677,15 +677,19 @@ function obtenerAudioPreguntaPolly() {
       const nombre = `pregunta_${req.params.id}.mp3`;
       // Ruta para guardar el archivo
       const ruta = `./public/trivia/${nombre}`;
-
+      
       if (audio.AudioStream instanceof Buffer) {        
+        console.log("Escribiendo archivo...");
         fs.writeFile(ruta, audio.AudioStream, error => {
+          console.log("Hola");
           if (error) {
+            console.log("ERROR");
             return res.status(500).json({
               estado: "ERROR",
               mensaje: "Se produjo un error al procesar la petición"
             })
           } else {
+            console.log("HOLA")
             return res.sendFile(`./public/trivia/${nombre}`, {root: __dirname}, err => {
               if (err) {                
                 console.log("Error: ", err);
@@ -697,6 +701,8 @@ function obtenerAudioPreguntaPolly() {
             });*/
           }
         });                   
+      } else {
+        console.log("NO")
       }      
     } catch (error) {      
       return res.status(500).json({
