@@ -736,7 +736,7 @@ function iniciarAPI() {
         ActualizarInformacion();
         TraducirDescripcion();
         obtenerInfoJugadorRekognition();
-
+        obtenerAudioPreguntaPolly();
       } catch (error) {
         //antiError();
         console.log("Fatality. Finish him :v");
