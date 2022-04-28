@@ -602,7 +602,111 @@ async function detectarJugador(imgBase64) {
   }
 }
 
+const optionsPolly = {
+  region: 'us-east-2',
+  accessKeyId: 'AKIAW2CKO7KNVVKCOT5A',
+  secretAccessKey: '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'    
+}
 
+async function obtenerAudio(text, id) {
+  // Crear objeto de Polly
+  const polly = new AWS.Polly(optionsPolly);
+  // Crear objeto de parámetros
+  const params = {
+    Text: text,
+    OutputFormat: 'mp3',
+    VoiceId: 'Penelope'
+  }      
+
+  return polly.synthesizeSpeech(params).promise()
+  .then(data => {
+    /*if (data.AudioStream instanceof Buffer) {      
+      console.log('Antes 1?');
+      const ruta = `./public/trivia/pregunta_${id}.mp3`;      
+      fs.writeFile(ruta, data.AudioStream, err => {
+        if (err) {
+          console.log(err);
+          return;
+        } else {
+          console.log('Antes 2?');
+          console.log("Archivo creado")
+          return ruta;
+        }                
+      });
+    } else {
+      console.log("No sé");
+    }*/
+    return data;
+  }).catch(error => {
+    return error;
+  })
+  /*// Crear archivo de audio
+  polly.synthesizeSpeech(params, (error, data) => {
+    // Si se produjo un error, devolver undefined
+    if (error) {
+      console.log(error);
+      return;
+    }
+    // Si no se produjo ningun error
+    if (data.AudioStream instanceof Buffer) {
+      const ruta = `./public/trivia/pregunta_${id}.mp3`;
+      fs.writeFile(ruta, data.AudioStream, err => {
+        if (err) {
+          console.log(err);
+          return;
+        }        
+        return ruta;
+      });
+    }
+  });*/
+}
+
+function obtenerAudioPreguntaPolly() {   
+  app.get('/api/trivia/pregunta/:id', async (req, res) => {
+    // Consulta para obtener la pregunta de la base de datos
+    const consulta = `SELECT * FROM Trivia WHERE idTrivia = ${req.params.id}`;
+    // Obtener la pregunta desde la base de datos
+    try {
+      // Tratar de obtener la pregunta
+      let result =  await ejecutarConsulta(consulta);      
+      // Obtener el contenido de la pregunta
+      const pregunta = result[0].Pregunta;
+      // Crear el audio
+      const audio = await obtenerAudio(pregunta, req.params.id);
+      // Nombre para guardar el archivo
+      const nombre = `pregunta_${req.params.id}.mp3`;
+      // Ruta para guardar el archivo
+      const ruta = `./public/trivia/${nombre}`;
+
+      if (audio.AudioStream instanceof Buffer) {        
+        fs.writeFile(ruta, audio.AudioStream, error => {
+          if (error) {
+            return res.status(500).json({
+              estado: "ERROR",
+              mensaje: "Se produjo un error al procesar la petición"
+            })
+          } else {
+            return res.sendFile(`./public/trivia/${nombre}`, {root: __dirname}, err => {
+              if (err) {                
+                console.log("Error: ", err);
+              }
+            });
+            /*return res.status(200).json({
+              estado: "OK",
+              mensaje: "Audio creado satisfactoriamente"
+            });*/
+          }
+        });                   
+      }      
+    } catch (error) {      
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Error al procesar la petición: verifique el contenido de la petición.",
+        log: error
+      }); 
+    }    
+  });
+}
 
 //-----Funciones varias que se utilizan para distintas aplicaciones.----
 
