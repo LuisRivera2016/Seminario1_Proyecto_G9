@@ -98,161 +98,234 @@ function Login(){
 }
 
 function Registrar(){
-      app.post("/registrar", async (req, res) => {
-        var attributelist = [];
-        var datos = req.body;
-        var usuario = datos.user;
-        var nombre = datos.name;
-        var email = datos.email;
-        var pass = datos.password;
-        var foto = datos.foto;
-        console.log("Usuario: " + usuario)
-        console.log("nombre: " + nombre)
-        console.log("email: " + email)
-        console.log("pass: " + pass)
-        
+    app.post("/registrar", async (req, res) => {
+      var attributelist = [];
+      var datos = req.body;
+      var usuario = datos.user;
+      var nombre = datos.name;
+      var email = datos.email;
+      var pass = datos.password;
+      var foto = datos.foto;
+      console.log("Usuario: " + usuario)
+      console.log("nombre: " + nombre)
+      console.log("email: " + email)
+      console.log("pass: " + pass)
+      
 
-        var dataname = {
-            Name: 'name',
-            Value: nombre,
-        };
-        var attributename = new AmazonCognitoIdentity.CognitoUserAttribute(dataname);
-      
-        attributelist.push(attributename);
-      
-        var dataemail = {
-            Name: 'email',
-            Value: email,
-        };
-        var attributeemail = new AmazonCognitoIdentity.CognitoUserAttribute(dataemail);
-      
-        attributelist.push(attributeemail);
+      var dataname = {
+          Name: 'name',
+          Value: nombre,
+      };
+      var attributename = new AmazonCognitoIdentity.CognitoUserAttribute(dataname);
+    
+      attributelist.push(attributename);
+    
+      var dataemail = {
+          Name: 'email',
+          Value: email,
+      };
+      var attributeemail = new AmazonCognitoIdentity.CognitoUserAttribute(dataemail);
+    
+      attributelist.push(attributeemail);
 
-            var contador = 0
-            //Generamos un codigo hash unico por usuario. como no pueden haber 2 usuarios llamados igual aplica correctamente.
-            var string = usuario
-            for (i = 0 ;i<string.length ; i++)
-            {
-                ch = string.charCodeAt(i);
-                contador = ((contador << 5) - contador) + ch;
-                contador = contador & contador;
+          var contador = 0
+          //Generamos un codigo hash unico por usuario. como no pueden haber 2 usuarios llamados igual aplica correctamente.
+          var string = usuario
+          for (i = 0 ;i<string.length ; i++)
+          {
+              ch = string.charCodeAt(i);
+              contador = ((contador << 5) - contador) + ch;
+              contador = contador & contador;
+          }
+          //Agregar la foto al bucket
+          //Contruimos para agregar la foto;
+          var id = "foto" + contador + "_" + usuario;
+          //Primero hay que guardar la foto del perfil.
+          var nombrei = "Fotos_Perfil/" + id + ".jpg"; // fotos -> se llama la carpeta
+          var nombreCompleto = "http://practica1-g9-imagenes.s3.amazonaws.com/"+nombrei;
+          console.log(nombrei);
+          //se convierte la base64 a bytes          
+          let buff = new Buffer.from(foto, 'base64');
+          AWS.config.update({
+            region: 'us-east-1', // se coloca la region del bucket 
+            accessKeyId: 'AKIA5DGZNJHPSPFRHSGF',
+            secretAccessKey: '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'
+          });
+          var s3 = new AWS.S3(); // se crea una variable que pueda tener acceso a las caracteristicas de S3
+          // metodo 1
+          const params = {
+            Bucket: "practica1-g9-imagenes",
+            Key: nombrei,
+            Body: buff,
+            ContentType: "image"
+          };
+          s3.putObject(params).promise();
+
+
+      var datafoto = {
+          Name: 'custom:foto',
+          Value: nombreCompleto+"",
+      };
+      var attributefoto = new AmazonCognitoIdentity.CognitoUserAttribute(datafoto);
+    
+      attributelist.push(attributefoto);
+    
+      pass = md5(pass)
+
+      //Guardar en la base de datos.
+      try {
+        consultar = "INSERT INTO Usuario(usuario,password,nombre,foto,puntos) VALUES(\""+usuario+"\",\""+pass+"\",\""+nombre+"\",\""+nombreCompleto+"\",0);";
+        console.log(consultar);
+        try{
+          var query = con.query(consultar,  function(error, result){
+            if(error){
+                throw error;
+            }else{
+                  
             }
-            //Agregar la foto al bucket
-            //Contruimos para agregar la foto;
-            var id = "foto" + contador + "_" + usuario;
-            //Primero hay que guardar la foto del perfil.
-            var nombrei = "Fotos_Perfil/" + id + ".jpg"; // fotos -> se llama la carpeta
-            var nombreCompleto = "http://practica1-g9-imagenes.s3.amazonaws.com/"+nombrei;
-            console.log(nombrei);
-            //se convierte la base64 a bytes          
-            let buff = new Buffer.from(foto, 'base64');
-            AWS.config.update({
-              region: 'us-east-1', // se coloca la region del bucket 
-              accessKeyId: 'AKIA5DGZNJHPSPFRHSGF',
-              secretAccessKey: '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'
-            });
-            var s3 = new AWS.S3(); // se crea una variable que pueda tener acceso a las caracteristicas de S3
-            // metodo 1
-            const params = {
-              Bucket: "practica1-g9-imagenes",
-              Key: nombrei,
-              Body: buff,
-              ContentType: "image"
-            };
-            s3.putObject(params).promise();
-
-
-        var datafoto = {
-            Name: 'custom:foto',
-            Value: nombreCompleto+"",
-        };
-        var attributefoto = new AmazonCognitoIdentity.CognitoUserAttribute(datafoto);
-      
-        attributelist.push(attributefoto);
-      
-        pass = md5(pass)
-      
-        cognito.signUp(usuario, pass+"D**", attributelist, null, async (err, data) => {
-            if (err) {
-                console.log(err);
-      
-                res.json({alerta: "No se puedo registrar el usuario: " + err.message || err});
-                return;
-            }
-            console.log(data);
-            res.json({alerta: "Usuario registrado correctamente, verificar su correo electronico."});
         });
+        }catch(error){
+          let a =  {"alerta": false , "mensaje": mensaje};
+          console.log(a);
+          res.send(a);
+        }
+      } catch (error) {
+        mensaje = "No se encontro el nombre del jugador. ";
+        let a =  {"alerta": false , "mensaje": mensaje};
+        console.log(a);
+        res.send(a);
+        
+      }
+
+    
+      cognito.signUp(usuario, pass+"D**", attributelist, null, async (err, data) => {
+          if (err) {
+              console.log(err);
+    
+              res.json({alerta: "No se puedo registrar el usuario: " + err.message || err});
+              return;
+          }
+          console.log(data);
+          res.json({alerta: "Usuario registrado correctamente, verificar su correo electronico."});
       });
+    });
 }
 
 function InformacionUsuario(){
-  app.get('/obtenerUsuario/:user/:password', (req, res) => {
-    try {
-      //var datos = req.body;
-      var usuario = req.params.user;
-      var pass = req.params.password
-      
-      console.log("USUARIO recibido:" + usuario);
-      console.log("Password :" + pass);
-
-      pass = md5(pass)
-
-      var authenticationData = {
-          Username: usuario,
-          Password: pass + "D**"
-      };
-      var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
-          authenticationData
-      );
-      var userData = {
-          Username: usuario,
-          Pool: cognito,
-      };
-      var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-      cognitoUser.setAuthenticationFlowType('USER_PASSWORD_AUTH');
+app.get('/obtenerUsuario/:user/', (req, res) => {
+  try {
+    //var datos = req.body;
+    var usuario = req.params.user;
+    var pass = req.params.password
     
-      cognitoUser.authenticateUser(authenticationDetails, {
-          onSuccess: function (result) {
-              // User authentication was successful
-               //
-               var matriz = new Array(6);
-              cognitoUser.getUserAttributes(function(err, result) {
-                if (err) {
-                  res.json(err.message );
-                  return;
-                }
-                for (i = 0; i < result.length; i++) {
-                  matriz[i] = result[i].getValue();
-                  console.log(
-                    'attribute ' + result[i].getName() + ' has value ' + result[i].getValue()
-                  );
-                }
-                res.json({foto: matriz[0] , user: usuario, name: matriz[3], email: matriz[4]});
-              });
+    console.log("USUARIO recibido:" + usuario);
+    console.log("Password :" + pass);
+
+    //Obtener el pass de la base de datos
+    try {
+      consultar = "SELECT password FROM Usuario WHERE usuario=\""+usuario+"\";";
+      console.log(consultar);
+      try{
+        var query = con.query(consultar,  function(error, result){
+          if(error){
+              throw error;
+          }else{
+              try{
+                  console.log(result)
+                  pass = result[0].password
+                  console.log("Password :" + pass);
+
+                  //Continuacion con cognito
+                  var authenticationData = {
+                    Username: usuario,
+                    Password: pass + "D**"
+                };
+                var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
+                    authenticationData
+                );
+                var userData = {
+                    Username: usuario,
+                    Pool: cognito,
+                };
+                var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+                cognitoUser.setAuthenticationFlowType('USER_PASSWORD_AUTH');
               
-            },
-          onFailure: function (err) {
-              // User authentication was not successful
-              res.json(err.message );
+                cognitoUser.authenticateUser(authenticationDetails, {
+                    onSuccess: function (result) {
+                        // User authentication was successful
+                         //
+                         var matriz = new Array(6);
+                        cognitoUser.getUserAttributes(function(err, result) {
+                          if (err) {
+                            res.json(err.message );
+                            return;
+                          }
+                          for (i = 0; i < result.length; i++) {
+                            matriz[i] = result[i].getValue();
+                            console.log(
+                              'attribute ' + result[i].getName() + ' has value ' + result[i].getValue()
+                            );
+                          }
+                          res.json({foto: matriz[0] , user: usuario, name: matriz[3], email: matriz[4]});
+                        });
+                        
+                      },
+                    onFailure: function (err) {
+                        // User authentication was not successful
+                        res.json(err.message );
+                        
+                      },
+                    mfaRequired: function (codeDeliveryDetails) {
+                        // MFA is required to complete user authentication.
+                        // Get the code from user and call
+                        cognitoUser.sendMFACode(verificationCode, this);
+                    },
+                });
+
+
+
+
+
+
+              }catch(err){
+                  mensaje = "No se pudo encontrar la informacion del usuario.";
+                  let a =  {"alerta": false , "mensaje": mensaje};
+                  console.log(a);
+                  res.send(a);
+                  return
+              }
               
-            },
-          mfaRequired: function (codeDeliveryDetails) {
-              // MFA is required to complete user authentication.
-              // Get the code from user and call
-              cognitoUser.sendMFACode(verificationCode, this);
-          },
+          }
       });
-
-      
-
-     
+      }catch(error){
+        mensaje = "No se pudo encontrar la informacion del usuario.";
+        let a =  {"alerta": false , "mensaje": mensaje};
+        console.log(a);
+        res.send(a);
+        return
+      }
     } catch (error) {
-      let a = { alerta: false , mensaje: "Verificar los parametros enviados..." };
+      mensaje = "No se pudo encontrar la informacion del usuario.";
+      let a =  {"alerta": false , "mensaje": mensaje};
       console.log(a);
       res.send(a);
+      return
     }
 
-  });
+    
+
+    
+
+    
+
+   
+  } catch (error) {
+    let a = { alerta: false , mensaje: "Verificar los parametros enviados..." };
+    console.log(a);
+    res.send(a);
+  }
+
+});
 
 
 
@@ -260,250 +333,329 @@ function InformacionUsuario(){
 }
 
 function ActualizarInformacion(){
-      app.put('/actualizar', (req, res) => {
-        try {
-          //var datos = req.body;
-          var datos = req.body;
-          var usuario = datos.user;
-          var nombre = datos.name;
-          var email = datos.email;
-          var pass = datos.password;
-          var passNew = datos.passwordNew;
-          var foto = datos.foto;
-          
-          console.log("USUARIO recibido:" + usuario);
-          console.log("Password :" + pass);
-
-          pass = md5(pass)
-
-          var authenticationData = {
-              Username: usuario,
-              Password: pass + "D**"
-          };
-          var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
-              authenticationData
-          );
-          var userData = {
-              Username: usuario,
-              Pool: cognito,
-          };
-          var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-          cognitoUser.setAuthenticationFlowType('USER_PASSWORD_AUTH');
+    app.put('/actualizar', (req, res) => {
+      try {
+        //var datos = req.body;
+        var datos = req.body;
+        var usuario = datos.user;
+        var nombre = datos.name;
+        var email = datos.email;
+        var pass = datos.password;
+        var passNew = datos.passwordNew;
+        var foto = datos.foto;
         
-          cognitoUser.authenticateUser(authenticationDetails, {
-              onSuccess: function (result) {
-                  // User authentication was successful
-                  var attributeList = [];
-                  var atributosModificados = "Se modificaron los atributos: "
+        console.log("USUARIO recibido:" + usuario);
+        console.log("Password :" + pass);
 
-                  
-                  if(nombre != ""){
-                    //Cambiar usuario
-                    atributosModificados += "nombre ,"
-                    var attribute = {
-                      Name: 'name',
-                      Value: nombre
-                    };
-                    var attribute = new AmazonCognitoIdentity.CognitoUserAttribute(attribute);
-                    attributeList.push(attribute);
-  
-                    cognitoUser.updateAttributes(attributeList, function(err, result) {
-                      if (err) {
-                        alert(err.message || JSON.stringify(err));
-                        return;
-                      }
-                      console.log('call result: ' + result);
-                    });
-                  }
-                  if(email != ""){
-                    //Cambiar usuario
-                    atributosModificados += "email,"
-                    var attribute = {
-                      Name: 'email',
-                      Value: email
-                    };
-                    var attribute = new AmazonCognitoIdentity.CognitoUserAttribute(attribute);
-                    attributeList.push(attribute);
+        pass = md5(pass)
 
-                    cognitoUser.updateAttributes(attributeList, function(err, result) {
-                      if (err) {
-                        alert(err.message || JSON.stringify(err));
-                        return;
-                      }
-                      console.log('call result: ' + result);
-                    });
-                  }
-                  if(passNew != ""){
-                    //Cambiar usuario
-                    atributosModificados += "contraseña,"
-                    passNew = md5(passNew) + "D**";
-                    cognitoUser.changePassword(pass+ "D**", passNew, function(err, result) {
-                      if (err) {
-                        alert(err.message || JSON.stringify(err));
-                        return;
-                      }
-                       
-                    });
+        var authenticationData = {
+            Username: usuario,
+            Password: pass + "D**"
+        };
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
+            authenticationData
+        );
+        var userData = {
+            Username: usuario,
+            Pool: cognito,
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        cognitoUser.setAuthenticationFlowType('USER_PASSWORD_AUTH');
+      
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function (result) {
+                // User authentication was successful
+                var attributeList = [];
+                var atributosModificados = "Se modificaron los atributos: "
 
-                  }
-                  if(foto != ""){
-                    var contador = 0
-                    //Generamos un codigo hash unico por usuario. como no pueden haber 2 usuarios llamados igual aplica correctamente.
-                    var string = usuario
-                    for (i = 0 ;i<string.length ; i++)
-                    {
-                        ch = string.charCodeAt(i);
-                        contador = ((contador << 5) - contador) + ch;
-                        contador = contador & contador;
+                
+                if(nombre != ""){
+                  //Cambio base de datos
+                  try {
+                    consultar = "UPDATE Usuario SET nombre=\""+nombre+"\" WHERE Usuario=\""+usuario+"\" AND PASSWORD=\""+pass+"\";"
+                    console.log(consultar);
+                    try{
+                      var query = con.query(consultar,  function(error, result){
+                        if(error){
+                            throw error;
+                        }else{
+                            
+
+                        }
+                    });
+                    }catch(error){
+                      mensaje = "No se pudo agregar el usuario, no es la contraseña correcta o el usuario.";
+                      let a =  {"alerta": false , "mensaje": mensaje};
+                      console.log(a);
+                      res.send(a);
                     }
-                    //Contruimos para agregar la foto;
-                    var id = "foto" + contador + "_" + usuario;
-                    //Primero hay que guardar la foto del perfil.
-                    var nombrei = "Fotos_Perfil/" + id + ".jpg"; // fotos -> se llama la carpeta
-                    var nombreCompleto = "http://practica1-g9-imagenes.s3.amazonaws.com/"+nombrei;
-                    console.log(nombrei);
-                    //se convierte la base64 a bytes          
-                    let buff = new Buffer.from(foto, 'base64');
-                    AWS.config.update({
-                      region: 'us-east-1', // se coloca la region del bucket 
-                      accessKeyId: 'AKIA5DGZNJHPSPFRHSGF',
-                      secretAccessKey: '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'
-                    });
-                    var s3 = new AWS.S3(); // se crea una variable que pueda tener acceso a las caracteristicas de S3
-                    // metodo 1
-                    const params = {
-                      Bucket: "practica1-g9-imagenes",
-                      Key: nombrei,
-                      Body: buff,
-                      ContentType: "image"
-                    };
-                    s3.putObject(params).promise();
-
-                    //Cambiar usuario
-                    atributosModificados += "foto,"
-                    var attribute = {
-                      Name: 'custom:foto',
-                      Value: nombreCompleto
-                    };
-                    var attribute = new AmazonCognitoIdentity.CognitoUserAttribute(attribute);
-                    attributeList.push(attribute);
-
-                    cognitoUser.updateAttributes(attributeList, function(err, result) {
-                      if (err) {
-                        alert(err.message || JSON.stringify(err));
-                        return;
-                      }
-                      console.log('call result: ' + result);
-                    });
+                  }catch (error) {
+                    mensaje = "No se pudo agregar el usuario, no es la contraseña correcta o el usuario.";
+                    let a =  {"alerta": false , "mensaje": mensaje};
+                    console.log(a);
+                    res.send(a);
                   }
-                  res.json({alerta: atributosModificados});
-              },
-              onFailure: function (err) {
-                  // User authentication was not successful
-                  res.json(err.message );
-                  
-                },
-              mfaRequired: function (codeDeliveryDetails) {
-                  // MFA is required to complete user authentication.
-                  // Get the code from user and call
-                  cognitoUser.sendMFACode(verificationCode, this);
-              },
-          });
 
-          
+
+                  //Cambiar usuario
+                  atributosModificados += "nombre ,"
+                  var attribute = {
+                    Name: 'name',
+                    Value: nombre
+                  };
+                  var attribute = new AmazonCognitoIdentity.CognitoUserAttribute(attribute);
+                  attributeList.push(attribute);
+
+                  cognitoUser.updateAttributes(attributeList, function(err, result) {
+                    if (err) {
+                      alert(err.message || JSON.stringify(err));
+                      return;
+                    }
+                    console.log('call result: ' + result);
+                  });
+                }
+                if(email != ""){
+                  //Cambiar usuario
+                  atributosModificados += "email,"
+                  var attribute = {
+                    Name: 'email',
+                    Value: email
+                  };
+                  var attribute = new AmazonCognitoIdentity.CognitoUserAttribute(attribute);
+                  attributeList.push(attribute);
+
+                  cognitoUser.updateAttributes(attributeList, function(err, result) {
+                    if (err) {
+                      alert(err.message || JSON.stringify(err));
+                      return;
+                    }
+                    console.log('call result: ' + result);
+                  });
+                }
+                if(passNew != ""){
+                  //Cambio de password
+                  //Cambio base de datos
+                  try {
+                    consultar = "UPDATE Usuario SET password=\""+passwordNew+"\" WHERE Usuario=\""+usuario+"\" AND PASSWORD=\""+pass+"\";"
+                    console.log(consultar);
+                    try{
+                      var query = con.query(consultar,  function(error, result){
+                        if(error){
+                            throw error;
+                        }else{
+                          
+                        }
+                    });
+                    }catch(error){
+                      mensaje = "No se pudo agregar el usuario, no es la contraseña correcta o el usuario.";
+                      let a =  {"alerta": false , "mensaje": mensaje};
+                      console.log(a);
+                      res.send(a);
+                    }
+                  }catch (error) {
+                    mensaje = "No se pudo agregar el usuario, no es la contraseña correcta o el usuario.";
+                    let a =  {"alerta": false , "mensaje": mensaje};
+                    console.log(a);
+                    res.send(a);
+                  }
+
+                  //Cambiar usuario
+                  atributosModificados += "contraseña,"
+                  passNew = md5(passNew) + "D**";
+                  cognitoUser.changePassword(pass+ "D**", passNew, function(err, result) {
+                    if (err) {
+                      alert(err.message || JSON.stringify(err));
+                      return;
+                    }
+                     
+                  });
+
+                }
+                if(foto != ""){
+                  var contador = 0
+                  //Generamos un codigo hash unico por usuario. como no pueden haber 2 usuarios llamados igual aplica correctamente.
+                  var string = usuario
+                  for (i = 0 ;i<string.length ; i++)
+                  {
+                      ch = string.charCodeAt(i);
+                      contador = ((contador << 5) - contador) + ch;
+                      contador = contador & contador;
+                  }
+                  //Contruimos para agregar la foto;
+                  var id = "foto" + contador + "_" + usuario;
+                  //Primero hay que guardar la foto del perfil.
+                  var nombrei = "Fotos_Perfil/" + id + ".jpg"; // fotos -> se llama la carpeta
+                  var nombreCompleto = "http://practica1-g9-imagenes.s3.amazonaws.com/"+nombrei;
+
+                  //Actualizamos la foto
+                  try {
+                    consultar = "UPDATE Usuario SET foto=\""+nombreCompleto+"\" WHERE Usuario=\""+usuario+"\" AND PASSWORD=\""+pass+"\";"
+                    console.log(consultar);
+                    try{
+                      var query = con.query(consultar,  function(error, result){
+                        if(error){
+                            throw error;
+                        }else{
+                          
+                        }
+                    });
+                    }catch(error){
+                      mensaje = "No se pudo agregar el usuario, no es la contraseña correcta o el usuario.";
+                      let a =  {"alerta": false , "mensaje": mensaje};
+                      console.log(a);
+                      res.send(a);
+                    }
+                  }catch (error) {
+                    mensaje = "No se pudo agregar el usuario, no es la contraseña correcta o el usuario.";
+                    let a =  {"alerta": false , "mensaje": mensaje};
+                    console.log(a);
+                    res.send(a);
+                  }
+
+                  console.log(nombrei);
+                  //se convierte la base64 a bytes          
+                  let buff = new Buffer.from(foto, 'base64');
+                  AWS.config.update({
+                    region: 'us-east-1', // se coloca la region del bucket 
+                    accessKeyId: 'AKIA5DGZNJHPSPFRHSGF',
+                    secretAccessKey: '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'
+                  });
+                  var s3 = new AWS.S3(); // se crea una variable que pueda tener acceso a las caracteristicas de S3
+                  // metodo 1
+                  const params = {
+                    Bucket: "practica1-g9-imagenes",
+                    Key: nombrei,
+                    Body: buff,
+                    ContentType: "image"
+                  };
+                  s3.putObject(params).promise();
+
+                  //Cambiar usuario
+                  atributosModificados += "foto,"
+                  var attribute = {
+                    Name: 'custom:foto',
+                    Value: nombreCompleto
+                  };
+                  var attribute = new AmazonCognitoIdentity.CognitoUserAttribute(attribute);
+                  attributeList.push(attribute);
+
+                  cognitoUser.updateAttributes(attributeList, function(err, result) {
+                    if (err) {
+                      alert(err.message || JSON.stringify(err));
+                      return;
+                    }
+                    console.log('call result: ' + result);
+                  });
+                }
+                res.json({alerta: atributosModificados});
+            },
+            onFailure: function (err) {
+                // User authentication was not successful
+                res.json(err.message );
+                
+              },
+            mfaRequired: function (codeDeliveryDetails) {
+                // MFA is required to complete user authentication.
+                // Get the code from user and call
+                cognitoUser.sendMFACode(verificationCode, this);
+            },
+        });
 
         
-        } catch (error) {
-          let a = { alerta: false , mensaje: "Verificar los parametros enviados..." };
-          console.log(a);
-          res.send(a);
-        }
 
-      });
+      
+      } catch (error) {
+        let a = { alerta: false , mensaje: "Verificar los parametros enviados..." };
+        console.log(a);
+        res.send(a);
+      }
+
+    });
 
 
 
 }
 
 function TraducirDescripcion(){
-    try {
-      app.post('/traducirDescripcion', (req, res) => {
-        //Primero necesitamos extraer el texto de la imagen
-        console.log("Traduciendo.");
-        AWS.config.update({
-          region: 'us-east-1', // se coloca la region del bucket 
-          accessKeyId: 'AKIARBGTLGJNMUVUHD4J',
-          secretAccessKey: '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'
-        });
-        var datos = req.body;
-        var name = datos.nombre;
-        var idiomaObjetivo = datos.idioma;
-        //var descripcionImagen = "";
-        try {
-            consultar = "SELECT * FROM Jugador WHERE nombre=\""+name+"\";";
-            console.log(consultar);
-            try{
-              var query = con.query(consultar,  function(error, result){
-                if(error){
-                    throw error;
-                }else{
-                  try {
-                    var text = "Nombre: " + result[0].Nombre + ", ";
-                    text +=     "Posicion: " + result[0].Posicion + ", ";
-                    text +=     "Edad: " + result[0].Edad + ", ";
-                    text +=     "Equipo actual: " + result[0].Equipo_Actual + ", ";
-                    text +=     "Alias: " + result[0].Alias + ", ";
-                    
-                  } catch (error) {
-                    res.send({ alerta: false, mensaje:"No se puede traducir la descripcion , traslate no encontro al jugador con ese nombre."})
-                    return;
-                  }
-                  var params = {
-                    SourceLanguageCode: 'auto',
-                    TargetLanguageCode: idiomaObjetivo,
-                    Text: text 
-                  };
-                  var translate = new AWS.Translate();
-                  translate.translateText(params, function (err, data) {
-                    if (err) {
-                      res.send({ error: err })
-                    } else {
-                      console.log(data);
-                      res.send({ alerta: true, original: text, mensaje: data.TranslatedText })
-                    }
-                  });
-                }
-            });
-            }catch(error){
-              let a =  {"error": "No existe el jugador"};
-              console.log(a);
-              res.send(a);
-            }
-        } catch (error) {
-          mensaje = "No se encontro el nombre del jugador. ";
-          let a =  {"alerta": mensaje, "valor": false};
-          console.log(a);
-          res.send(a);
-          
-        }
-  
-  
-            
-                 
-                 
+  try {
+    app.post('/traducirDescripcion', (req, res) => {
+      //Primero necesitamos extraer el texto de la imagen
+      console.log("Traduciendo.");
+      AWS.config.update({
+        region: 'us-east-1', // se coloca la region del bucket 
+        accessKeyId: 'AKIARBGTLGJNMUVUHD4J',
+        secretAccessKey: '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'
+      });
+      var datos = req.body;
+      var name = datos.nombre;
+      var idiomaObjetivo = datos.idioma;
+      //var descripcionImagen = "";
+      try {
+          consultar = "SELECT * FROM Jugador WHERE nombre=\""+name+"\";";
+          console.log(consultar);
+          try{
+            var query = con.query(consultar,  function(error, result){
+              if(error){
+                  throw error;
+              }else{
+                try {
+                  var text = "Nombre: " + result[0].Nombre + ", ";
+                  text +=     "Posicion: " + result[0].Posicion + ", ";
+                  text +=     "Edad: " + result[0].Edad + ", ";
+                  text +=     "Equipo actual: " + result[0].Equipo_Actual + ", ";
+                  text +=     "Alias: " + result[0].Alias + ", ";
                   
-              
-      
-    });
-    } catch (error) {
-      let a = [ {"alerta": "Verificar los parametros enviados..." , "valor": false}];
-      console.log(a);
-      res.send(a);
-    }
-  
-  
-  
-  
+                } catch (error) {
+                  res.send({ alerta: false, mensaje:"No se puede traducir la descripcion , traslate no encontro al jugador con ese nombre."})
+                  return;
+                }
+                var params = {
+                  SourceLanguageCode: 'auto',
+                  TargetLanguageCode: idiomaObjetivo,
+                  Text: text 
+                };
+                var translate = new AWS.Translate();
+                translate.translateText(params, function (err, data) {
+                  if (err) {
+                    res.send({ error: err })
+                  } else {
+                    console.log(data);
+                    res.send({ alerta: true, original: text, mensaje: data.TranslatedText })
+                  }
+                });
+              }
+          });
+          }catch(error){
+            let a =  {"error": "No existe el jugador"};
+            console.log(a);
+            res.send(a);
+          }
+      } catch (error) {
+        mensaje = "No se encontro el nombre del jugador. ";
+        let a =  {"alerta": mensaje, "valor": false};
+        console.log(a);
+        res.send(a);
+        
+      }
+
+
+          
+               
+               
+                
+            
+    
+  });
+  } catch (error) {
+    let a = [ {"alerta": "Verificar los parametros enviados..." , "valor": false}];
+    console.log(a);
+    res.send(a);
+  }
+
+
+
+
 }
 
 const optionsRekognition = {
