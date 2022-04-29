@@ -771,46 +771,11 @@ async function obtenerAudio(text, id) {
   }      
 
   return polly.synthesizeSpeech(params).promise()
-  .then(data => {
-    /*if (data.AudioStream instanceof Buffer) {      
-      console.log('Antes 1?');
-      const ruta = `./public/trivia/pregunta_${id}.mp3`;      
-      fs.writeFile(ruta, data.AudioStream, err => {
-        if (err) {
-          console.log(err);
-          return;
-        } else {
-          console.log('Antes 2?');
-          console.log("Archivo creado")
-          return ruta;
-        }                
-      });
-    } else {
-      console.log("No sé");
-    }*/
+  .then(data => {    
     return data;
   }).catch(error => {
     return error;
-  })
-  /*// Crear archivo de audio
-  polly.synthesizeSpeech(params, (error, data) => {
-    // Si se produjo un error, devolver undefined
-    if (error) {
-      console.log(error);
-      return;
-    }
-    // Si no se produjo ningun error
-    if (data.AudioStream instanceof Buffer) {
-      const ruta = `./public/trivia/pregunta_${id}.mp3`;
-      fs.writeFile(ruta, data.AudioStream, err => {
-        if (err) {
-          console.log(err);
-          return;
-        }        
-        return ruta;
-      });
-    }
-  });*/
+  })  
 }
 
 function obtenerAudioPreguntaPolly() {   
@@ -830,38 +795,186 @@ function obtenerAudioPreguntaPolly() {
       // Ruta para guardar el archivo
       const ruta = `./public/trivia/${nombre}`;
       
-      if (audio.AudioStream instanceof Buffer) {        
-        console.log("Escribiendo archivo...");
-        fs.writeFile(ruta, audio.AudioStream, error => {
-          console.log("Hola");
-          if (error) {
-            console.log("ERROR");
+      if (audio.AudioStream instanceof Buffer) {                
+        fs.writeFile(ruta, audio.AudioStream, error => {          
+          if (error) {            
             return res.status(500).json({
               estado: "ERROR",
               mensaje: "Se produjo un error al procesar la petición"
             })
-          } else {
-            console.log("HOLA")
+          } else {            
             return res.sendFile(`./public/trivia/${nombre}`, {root: __dirname}, err => {
               if (err) {                
                 console.log("Error: ", err);
               }
-            });
-            /*return res.status(200).json({
-              estado: "OK",
-              mensaje: "Audio creado satisfactoriamente"
-            });*/
+            });            
           }
         });                   
-      } else {
-        console.log("NO")
-      }      
+      }     
     } catch (error) {      
       return res.status(500).json({
         estado: "ERROR",
         mensaje: "Error al procesar la petición: verifique el contenido de la petición.",
         log: error
       }); 
+    }    
+  });
+}
+
+function obtenerSelecciones() {
+  app.get('/api/selecciones', async function(req, res) {
+    // Consulta para obtener la informació sobre las selecciones
+    const consulta = `SELECT * FROM Seleccion `;    
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Devolver el resultado
+      return res.status(200).json({
+        estado: "OK",
+        result: result
+      });
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      })      
+    }
+    
+  });
+}
+
+function obtenerSeleccionesConfederacion() {
+  app.get('/api/selecciones/confederacion/:id', async function(req, res) {
+    // Consulta para obtener la informació sobre las selecciones
+    const consulta = `SELECT * FROM Seleccion WHERE idConfederacion = ${req.params.id} `;    
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Devolver el resultado
+      return res.status(200).json({
+        estado: "OK",
+        result: result
+      });
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      })      
+    }    
+  });
+}
+
+function obtenerJugadores() {
+  app.get('/api/jugadores', async function(req, res) {
+    // Consulta para obtener la informació sobre los jugadores selecciones
+    const consulta = `SELECT * FROM Jugador `;    
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Devolver el resultado
+      return res.status(200).json({
+        estado: "OK",
+        result: result
+      });
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      })      
+    }    
+  });
+}
+
+function obtenerJugadoresSeleccion() {
+  app.get('/api/jugadores/seleccion/:id', async function(req, res) {
+    // Consulta para obtener la informació sobre los jugadores
+    const consulta = `SELECT * FROM Jugador WHERE idSeleccion = ${req.params.id}`;    
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Devolver el resultado
+      return res.status(200).json({
+        estado: "OK",
+        result: result
+      });
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      })      
+    }
+    
+  });
+}
+
+function obtenerPartidosEstadio() {
+  app.get('/api/partidos/estadio/:id', async function(req, res) {
+    // Consulta para obtener la informació sobre los partidos
+    const consulta = `SELECT Hora, Fecha, S1.Pais AS Pais1 ,S1.Bandera AS Bandera1, S2.Pais AS Pais2 , S2.Bandera AS Bandera2 FROM Partido 
+    INNER JOIN Seleccion AS S1 ON Partido.idEquipo1 = S1.idSeleccion
+    INNER JOIN Seleccion AS S2 ON Partido.idEquipo2 = S2.idSeleccion
+    WHERE idEstadio = ${req.params.id}`;    
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Devolver el resultado
+      return res.status(200).json({
+        estado: "OK",
+        result: result
+      });
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      })      
+    }    
+  });
+}
+
+function obtenerPartidosFecha() {
+  app.get('/api/partidos/fecha/', async function(req, res) {
+    // Consulta para obtener la información sobre las partidos
+    const consulta = `SELECT Hora, Fecha, S1.Pais AS Pais1 ,S1.Bandera AS Bandera1, S2.Pais AS Pais2 , S2.Bandera AS Bandera2 FROM Partido 
+    INNER JOIN Seleccion AS S1 ON Partido.idEquipo1 = S1.idSeleccion
+    INNER JOIN Seleccion AS S2 ON Partido.idEquipo2 = S2.idSeleccion
+    WHERE Fecha = '${req.body.fecha}'`;    
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Devolver el resultado
+      return res.status(200).json({
+        estado: "OK",
+        result: result
+      });
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      })      
+    }    
+  });
+}
+
+function obtenerPartidosEquipo() {
+  app.get('/api/partidos/fecha/', async function(req, res) {
+    // Consulta para obtener la información sobre las partidos
+    const consulta = `SELECT Hora, Fecha, S1.Pais AS Pais1 ,S1.Bandera AS Bandera1, S2.Pais AS Pais2 , S2.Bandera AS Bandera2 FROM Partido 
+    INNER JOIN Seleccion AS S1 ON Partido.idEquipo1 = S1.idSeleccion
+    INNER JOIN Seleccion AS S2 ON Partido.idEquipo2 = S2.idSeleccion
+    WHERE Fecha = '${req.body.fecha}'`;    
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Devolver el resultado
+      return res.status(200).json({
+        estado: "OK",
+        result: result
+      });
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      })      
     }    
   });
 }
@@ -895,6 +1008,12 @@ function iniciarAPI() {
         TraducirDescripcion();
         obtenerInfoJugadorRekognition();
         obtenerAudioPreguntaPolly();
+        obtenerSelecciones();
+        obtenerSeleccionesConfederacion();
+        obtenerJugadores();
+        obtenerJugadoresSeleccion();
+        obtenerPartidosEstadio();
+        obtenerPartidosFecha()
       } catch (error) {
         //antiError();
         console.log("Fatality. Finish him :v");
