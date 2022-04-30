@@ -658,6 +658,144 @@ function TraducirDescripcion(){
 
 }
 
+function ObtenerEstadios(){
+    app.get('/obtenerEstadios', (req, res) => {
+      try{
+        //Obtener el pass de la base de datos
+        try {
+          consultar = "SELECT * FROM Estadio ;";
+          console.log(consultar);
+          try{
+            var query = con.query(consultar,  function(error, result){
+              if(error){
+                  throw error;
+              }else{
+                  try{
+                      res.send({estado: true, result:result});
+                  }catch(err){
+                      mensaje = "No se pudo encontrar la informacion de los estadios, avisar al encargado :V.";
+                      let a =  {"alerta": false , "mensaje": mensaje};
+                      console.log(a);
+                      res.send(a);
+                      return
+                  }
+                  
+              }
+          });
+          }catch(error){
+            mensaje = "No se pudo encontrar la informacion del usuario.";
+            let a =  {"alerta": false , "mensaje": mensaje};
+            console.log(a);
+            res.send(a);
+            return
+          }
+        } catch (error) {
+          mensaje = "No se pudo encontrar la informacion del usuario.";
+          let a =  {"alerta": false , "mensaje": mensaje};
+          console.log(a);
+          res.send(a);
+          return
+        }
+      }catch (error) {
+        let a = { alerta: false , mensaje: "Verificar los parametros enviados..." };
+        console.log(a);
+        res.send(a);
+      }
+    }); 
+}
+  
+function ObtenerConfederacion(){
+    app.get('/obtenerConfederacion', (req, res) => {
+      try{
+        //Obtener el pass de la base de datos
+        try {
+          consultar = "SELECT * FROM Confederacion ;";
+          console.log(consultar);
+          try{
+            var query = con.query(consultar,  function(error, result){
+              if(error){
+                  throw error;
+              }else{
+                  try{
+                    res.send({estado: true, result:result});
+                  }catch(err){
+                      mensaje = "No se pudo encontrar la informacion de los estadios, avisar al encargado :V.";
+                      let a =  {"alerta": false , "mensaje": mensaje};
+                      console.log(a);
+                      res.send(a);
+                      return
+                  }
+                  
+              }
+          });
+          }catch(error){
+            mensaje = "No se pudo encontrar la informacion del usuario.";
+            let a =  {"alerta": false , "mensaje": mensaje};
+            console.log(a);
+            res.send(a);
+            return
+          }
+        } catch (error) {
+          mensaje = "No se pudo encontrar la informacion del usuario.";
+          let a =  {"alerta": false , "mensaje": mensaje};
+          console.log(a);
+          res.send(a);
+          return
+        }
+      }catch (error) {
+        let a = { alerta: false , mensaje: "Verificar los parametros enviados..." };
+        console.log(a);
+        res.send(a);
+      }
+    });   
+}
+  
+function ObtenerTop(){
+    app.get('/obtenerTop', (req, res) => {
+      try{
+        //Obtener el pass de la base de datos
+        try {
+          consultar = "SELECT Pais,Mundiales_Ganados FROM Seleccion WHERE Mundiales_Ganados > 0 ORDER BY Mundiales_Ganados DESC;";
+          console.log(consultar);
+          try{
+            var query = con.query(consultar,  function(error, result){
+              if(error){
+                  throw error;
+              }else{
+                  try{
+                    res.send({estado: true, result:result});
+                  }catch(err){
+                      mensaje = "No se pudo encontrar la informacion de los estadios, avisar al encargado :V.";
+                      let a =  {"alerta": false , "mensaje": mensaje};
+                      console.log(a);
+                      res.send(a);
+                      return
+                  }
+                  
+              }
+          });
+          }catch(error){
+            mensaje = "No se pudo encontrar la informacion del usuario.";
+            let a =  {"alerta": false , "mensaje": mensaje};
+            console.log(a);
+            res.send(a);
+            return
+          }
+        } catch (error) {
+          mensaje = "No se pudo encontrar la informacion del usuario.";
+          let a =  {"alerta": false , "mensaje": mensaje};
+          console.log(a);
+          res.send(a);
+          return
+        }
+      }catch (error) {
+        let a = { alerta: false , mensaje: "Verificar los parametros enviados..." };
+        console.log(a);
+        res.send(a);
+      }
+    });  
+}
+
 const optionsRekognition = {
   region: 'us-east-2',
   accessKeyId: 'AKIAW2CKO7KN3MUSJ4U2',
@@ -1013,7 +1151,11 @@ function iniciarAPI() {
         obtenerJugadores();
         obtenerJugadoresSeleccion();
         obtenerPartidosEstadio();
-        obtenerPartidosFecha()
+        obtenerPartidosFecha();
+        obtenerPartidosEquipo();
+        ObtenerEstadios();
+        ObtenerConfederacion();
+        ObtenerTop();
       } catch (error) {
         //antiError();
         console.log("Fatality. Finish him :v");
