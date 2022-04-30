@@ -1,0 +1,17 @@
+    <div class="login-content">
+        <div class="login-components">
+            <div class="img-login">
+                <img id="watches" src="https://res.cloudinary.com/alex4191/image/upload/v1651342849/SEMINARIO/e412d13f7cf32f83075688f26488120ea45c6800_k1xnbn.jpg" alt="animal image random">
+            </div>
+            <div class="data-login">
+                <img id="logo" src="https://res.cloudinary.com/alex4191/image/upload/v1650401793/SEMINARIO/New_Project_ijmtho.png" alt="logo faunadex">
+                <form [formGroup]="formularioLogin" (ngSubmit)="Login()">
+                    <input formControlName="user" type="text" name="txt_user" placeholder="USUARIO" #txtuser>
+                    <input formControlName="password" type="password" name="txt_password" placeholder="PASSWORD" #txtpass>
+                    <button type="submit" class="btn-login">Iniciar Sesion</button>
+                    <button class="btn-registro"  routerLink="/registro">No tienes cuenta? Registrate</button>
+                </form>
+            </div>
+            
+        </div>
+</div>
