@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -12,6 +13,9 @@ import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
+import { LobbyComponent } from './components/lobby/lobby.component';
+import { NavbarHomeComponent } from './components/navbar-home/navbar-home.component';
+import { DropdownNavbarComponent } from './components/dropdown-navbar/dropdown-navbar.component';
 
 @NgModule({
   declarations: [
@@ -21,9 +25,14 @@ import { LoginComponent } from './components/login/login.component';
     NavBarComponent,
     CountdownComponent,
     RegisterComponent,
-    LoginComponent
+    LoginComponent,
+    LobbyComponent,
+    NavbarHomeComponent,
+    DropdownNavbarComponent,
+    DropdownNavbarComponent
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
     AppRoutingModule,
     NgbModule,

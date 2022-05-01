@@ -1,0 +1,33 @@
+<app-navbar-home></app-navbar-home>
+<div class="container">
+    <div class="user-info">
+        <div class="col-md-6 mb-4">
+            <img class="rounded-circle" alt="100x100" [src]="foto"
+              data-holder-rendered="true">  
+        </div>
+        <div class="data-user">
+            <p> <fa-icon class="faTrophy" [icon]="faUserAlt">
+            </fa-icon> Nombre: </p>
+            <p class="data-recived"> {{name}}</p>
+        </div>
+        <div class="data-user">
+            <p> <fa-icon class="faTrophy" [icon]="faUser">
+            </fa-icon> Usuario: </p>
+            <p class="data-recived"> {{username}}</p>
+        </div>
+        <div class="data-user">
+            <p> <fa-icon class="faTrophy" [icon]="faMailBulk">
+            </fa-icon> Email: </p>
+            <p class="data-recived"> {{email}}</p>
+        </div>
+        <div class="data-user">
+            <p> <fa-icon class="faTrophy" [icon]="faTrophy">
+            </fa-icon> Puntuacion: </p>
+            <p class="data-recived"> {{puntos}}</p>
+        </div>
+    
+    </div>
+    <div class="menu-lobby">
+        <p>MENU</p>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+<div class="row">
+    <div class="col">
+      <div ngbDropdown class="d-inline-block" (openChange)="toggled($event)">
+        <button class="menu-navbar"  id="dropdownBasic1" ngbDropdownToggle>
+          <fa-icon class="user-icon" [icon]="faUserCircle">
+          </fa-icon>
+          {{currentLog}}
+        </button>
+        <div  class="subMenu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+          <button>Cerrar Sesion</button>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ApiServiceService } from 'src/app/api-service.service';
 import { Router } from '@angular/router';
 import Validation from 'src/app/providers/CustomValidators';
+import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -11,7 +13,9 @@ export class RegisterComponent implements OnInit {
   imageSrc: string = '';
   form! : FormGroup
   submitted = false;
-  constructor(public formBuilder:FormBuilder, private router: Router ) { 
+  constructor(
+    private _cpd: ApiServiceService,
+    private formBuilder:FormBuilder, private router: Router ) { 
     this.form = this.formBuilder.group(
       {
         name: ['', Validators.required],
@@ -21,6 +25,13 @@ export class RegisterComponent implements OnInit {
             Validators.required,
             Validators.minLength(6),
             Validators.maxLength(20)
+          ]
+        ],
+        email: [
+          '',
+          [
+            Validators.required,
+            Validators.email
           ]
         ],
         password: [
@@ -54,10 +65,23 @@ export class RegisterComponent implements OnInit {
     console.log("hola")
     console.log(this.form?.value)
     this.submitted = true;
-    if (this.form?.invalid) {
+    if (this.form.invalid) {
       return;
     }
+
+    this._cpd.registro(this.form.value).subscribe(
+      (response: any) => {
+        
+       alert(response.alerta);
+       this.router.navigate(['/login']);
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+        
+      }
+    );
   }
+
   onFileChange(event:any) {
     const reader = new FileReader();
     
