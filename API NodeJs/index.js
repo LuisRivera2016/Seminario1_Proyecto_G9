@@ -2,6 +2,10 @@
 var mariaDB = require('mysql');
 //Lista de consultas
 
+//import {SubscribeCommand } from "@aws-sdk/client-sns";
+//var snsClient  = require("./node_modules/@aws-sdk/client-sns/dist-cjs/snsClient.js");
+
+
 //Variables para cargar pagina
 const http = require("http");
 const host = "localhost";
@@ -223,7 +227,7 @@ app.get('/obtenerUsuario/:user/', (req, res) => {
 
     //Obtener el pass de la base de datos
     try {
-      consultar = "SELECT password FROM Usuario WHERE usuario=\""+usuario+"\";";
+      consultar = "SELECT * FROM Usuario WHERE usuario=\""+usuario+"\";";
       console.log(consultar);
       try{
         var query = con.query(consultar,  function(error, result){
@@ -231,9 +235,11 @@ app.get('/obtenerUsuario/:user/', (req, res) => {
               throw error;
           }else{
               try{
-                  console.log(result)
-                  pass = result[0].password
+                  console.log(result);
+                  pass = result[0].password;
                   console.log("Password :" + pass);
+                  var points = result[0].puntos;
+                  console.log("Puntos :" + points);
 
                   //Continuacion con cognito
                   var authenticationData = {
@@ -266,7 +272,7 @@ app.get('/obtenerUsuario/:user/', (req, res) => {
                               'attribute ' + result[i].getName() + ' has value ' + result[i].getValue()
                             );
                           }
-                          res.json({foto: matriz[0] , user: usuario, name: matriz[3], email: matriz[4]});
+                          res.json({foto: matriz[0] , user: usuario, name: matriz[3], email: matriz[4], puntos: points});
                         });
                         
                       },
@@ -796,6 +802,60 @@ function ObtenerTop(){
     });  
 }
 
+function SuscribirEmail(){
+  AWS.config.update({
+    region: 'us-east-1', // se coloca la region del bucket 
+    accessKeyId: 'AKIARBGTLGJNPKBVC5KQ',
+    secretAccessKey: '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'
+  });
+  const sns = new AWS.SNS();  
+  app.post('/suscribirEmail', (req, res) => {
+    //Primero necesitamos extraer el texto de la imagen
+    console.log("Traduciendo.");
+    
+    var datos = req.body;
+    var email = datos.email;
+    console.log("Email: " + email);
+    //var idiomaObjetivo = datos.idioma;
+    //var descripcionImagen = "";
+    try {
+         // Set the parameters
+          let params = {
+            Protocol: 'EMAIL', 
+            TopicArn: 'arn:aws:sns:us-east-1:071310193242:Futbol',
+            Endpoint: email
+          };
+  
+          sns.subscribe(params, (err, data) => {
+              if (err) {
+                  console.log(err);
+              } else {
+                  console.log(data);
+                  res.send(data);
+              }
+          });
+
+    } catch (error) {
+      mensaje = "No se encontro el nombre del jugador. ";
+      let a =  {"alerta": mensaje, "valor": false};
+      console.log(a);
+      res.send(a);
+      
+    }
+
+
+        
+             
+             
+              
+          
+  
+});
+
+
+
+}
+
 const optionsRekognition = {
   region: 'us-east-2',
   accessKeyId: 'AKIAW2CKO7KN3MUSJ4U2',
@@ -1156,6 +1216,7 @@ function iniciarAPI() {
         ObtenerEstadios();
         ObtenerConfederacion();
         ObtenerTop();
+        SuscribirEmail();
       } catch (error) {
         //antiError();
         console.log("Fatality. Finish him :v");
