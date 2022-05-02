@@ -1,0 +1,14 @@
+<app-navbar-home></app-navbar-home>
+<app-back-menu></app-back-menu>
+<div class="container">
+    <div *ngFor="let jugador of players" class="card-country" >
+        <div class="escudo-size">
+            <img class="escudo" src="https://practica1-g9-imagenes.s3.amazonaws.com/{{jugador.Foto}}">
+        </div>
+        <p>Name: {{jugador.Nombre}}</p>
+        <p>Position: {{jugador.Posicion}}</p>
+        <p>Actual Club: {{jugador.Equipo_Actual}}</p>
+        <p>Age: {{jugador.Edad}}</p>
+        <p>Alias: {{jugador.Alias}}</p>
+    </div>
+</div>

@@ -22,4 +22,17 @@ export class ApiServiceService {
     return this.http.get<any>(`${this.ApiUrl}/obtenerUsuario/${nombre}`)
   }
 
+  public getConfederaciones():Observable<any>{
+    return this.http.get<any>(`${this.ApiUrl}/obtenerConfederacion`);
+  }
+
+  public getListaPaises(id:any):Observable<any>{
+    return this.http.get<any>(`${this.ApiUrl}/api/selecciones/confederacion/${id}`);
+  }
+
+  public getListaJugadores(id:any):Observable<any>{
+    return this.http.get<any>(`${this.ApiUrl}/api/jugadores/seleccion/${id}`);
+  }
+  
+
 }

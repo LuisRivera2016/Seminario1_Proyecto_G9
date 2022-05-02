@@ -15,7 +15,11 @@ import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { LobbyComponent } from './components/lobby/lobby.component';
 import { NavbarHomeComponent } from './components/navbar-home/navbar-home.component';
-import { DropdownNavbarComponent } from './components/dropdown-navbar/dropdown-navbar.component';
+import { DropdownNavbarComponent } from './dropdown-navbar/dropdown-navbar.component';
+import { ConfederationMenuComponent } from './components/confederation-menu/confederation-menu.component';
+import { BackMenuComponent } from './components/back-menu/back-menu.component';
+import { CountryComponent } from './components/country/country.component';
+import { ListaJugadoresComponent } from './components/lista-jugadores/lista-jugadores.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +33,11 @@ import { DropdownNavbarComponent } from './components/dropdown-navbar/dropdown-n
     LobbyComponent,
     NavbarHomeComponent,
     DropdownNavbarComponent,
-    DropdownNavbarComponent
+    DropdownNavbarComponent,
+    ConfederationMenuComponent,
+    BackMenuComponent,
+    CountryComponent,
+    ListaJugadoresComponent
   ],
   imports: [
     HttpClientModule,

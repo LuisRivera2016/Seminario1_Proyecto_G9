@@ -1,0 +1,14 @@
+<app-navbar-home></app-navbar-home>
+<app-back-menu></app-back-menu>
+<div class="container">
+    <div *ngFor="let pais of countries" class="card-country" >
+        <div class="escudo-size" routerLink="/Pais/{{pais.idSeleccion}}">
+            <img class="escudo" src="https://practica1-g9-imagenes.s3.amazonaws.com/{{pais.Escudo}}">
+        </div>
+        <p>Country: {{pais.Pais}}</p>
+        <p>Wins: {{pais.Mundiales_Ganados}}</p>
+        <div class="flag-size">
+            Flag: <img class="escudo" src="https://practica1-g9-imagenes.s3.amazonaws.com/{{pais.Bandera}}">
+        </div>
+    </div>
+</div>
