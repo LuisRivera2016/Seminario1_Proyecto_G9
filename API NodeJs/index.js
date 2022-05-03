@@ -1177,6 +1177,29 @@ function obtenerPartidosEquipo() {
   });
 }
 
+function obtenerTopUsuarios() {
+  app.get('/api/trivia/top', async function(req, res) {
+    // Consulta para obtener la información sobre las partidos
+    const consulta = `SELECT usuario,puntos FROM Usuario
+    ORDER BY puntos DESC
+    LIMIT 10;`;    
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Devolver el resultado
+      return res.status(200).json({
+        estado: "OK",
+        result: result
+      });
+    } catch (error) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición"
+      })      
+    }    
+  });
+}
+
 //-----Funciones varias que se utilizan para distintas aplicaciones.----
 
 //Inicializa la API en el puerto especifico.
@@ -1217,6 +1240,7 @@ function iniciarAPI() {
         ObtenerConfederacion();
         ObtenerTop();
         SuscribirEmail();
+        obtenerTopUsuarios();
       } catch (error) {
         //antiError();
         console.log("Fatality. Finish him :v");
