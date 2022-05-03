@@ -874,7 +874,7 @@ async function ejecutarConsulta(consulta) {
 }
 
 function obtenerInfoJugadorRekognition() {
-  app.get('/api/jugadores/buscar', async (req, res) => {
+  app.post('/api/jugadores/buscar', async (req, res) => {
     // Validar que exista la propiedad base64 en la petición    
     if (!req.body.base64) {
       return res.status(500).json({
