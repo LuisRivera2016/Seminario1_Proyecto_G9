@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ConfederationMenuComponent } from './components/confederation-menu/confederation-menu.component';
 import { CountryComponent } from './components/country/country.component';
+import { FindPlayerComponent } from './components/find-player/find-player.component';
 import { HomeComponent } from './components/home/home.component';
 import { ListaJugadoresComponent } from './components/lista-jugadores/lista-jugadores.component';
 import { LobbyComponent } from './components/lobby/lobby.component';
@@ -20,6 +21,10 @@ const routes: Routes = [
   {
     path:'confederations',
     component:ConfederationMenuComponent
+  },
+  {
+    path:'findPlayer',
+    component:FindPlayerComponent
   },
   {
     path:'Listconfederation/:conf',

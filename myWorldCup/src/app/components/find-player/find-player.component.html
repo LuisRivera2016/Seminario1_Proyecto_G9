@@ -1,0 +1,53 @@
+<app-navbar-home></app-navbar-home>
+<app-back-menu></app-back-menu>
+<div class="container">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <button type="submit">Search</button>
+            <input 
+                formControlName="file"
+                id="file" 
+                type="file" 
+                class="form-control"
+                (change)="onFileChange($event)"
+                [ngClass]="{ 'is-invalid': submitted && f.file.errors }"
+                />
+                <div
+                *ngIf="submitted && f.file.errors"
+                class="invalid-feedback"
+            >
+                <div *ngIf="f.file.errors.required">
+                <p class="msg-error">Subir una foto es requerido</p>
+                </div>
+            </div>
+
+        </div>
+    </form>
+    <div class="data-player" *ngFor="let jugador of player">
+        <div class="img-player">
+            <div>
+                <img  alt="100x100" [src]="foto">  
+            </div>
+        </div>
+        <div class="player-info">
+            <p>Datos del Jugador:</p>
+           <div>
+               <p> <fa-icon class="faTrophy" [icon]="faUser">
+            </fa-icon> Name</p>
+               <p class="data">{{jugador.Nombre}}</p>
+               <p><fa-icon class="faTrophy" [icon]="faFutbol">
+            </fa-icon> Position </p>
+               <p class="data">{{jugador.Posicion}}</p>
+               <p> <fa-icon class="faTrophy" [icon]="faFlag">
+            </fa-icon> Actual Team</p>
+               <p class="data">{{jugador.Equipo_Actual}}</p>
+               <p><fa-icon class="faTrophy" [icon]="faUser">
+            </fa-icon> Age</p>
+               <p class="data">{{jugador.Edad}}</p>
+               <p><fa-icon class="faTrophy" [icon]="faUser">
+            </fa-icon> Alias</p>
+               <p class="data">{{jugador.Alias}}</p>
+           </div>
+        </div>
+    </div>
+</div>

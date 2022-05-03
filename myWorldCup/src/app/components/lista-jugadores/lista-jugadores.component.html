@@ -1,14 +1,47 @@
 <app-navbar-home></app-navbar-home>
 <app-back-menu></app-back-menu>
 <div class="container">
+    <div class="form-container">
+        <form [formGroup]="form">
+            <div class="form-group">
+                <label for="" class="form-label">Lenguages: </label>
+                <select class="form-select" formControlName="lenguaje" aria-label="Default select example">
+                    <option value="es">Spanish</option>
+                    <option value="ja">Japanese</option>
+                    <option value="ru">Russian</option>
+                    <option value="en">English</option>
+                    <option value="it">Italian</option>
+                   </select>
+            </div>
+        </form>
+    </div>
     <div *ngFor="let jugador of players" class="card-country" >
         <div class="escudo-size">
             <img class="escudo" src="https://practica1-g9-imagenes.s3.amazonaws.com/{{jugador.Foto}}">
         </div>
-        <p>Name: {{jugador.Nombre}}</p>
-        <p>Position: {{jugador.Posicion}}</p>
+        <p><fa-icon class="faTrophy" [icon]="faUser">
+        </fa-icon> Name: {{jugador.Nombre}}</p>
+        <p><fa-icon class="faTrophy" [icon]="faFutbol">
+        </fa-icon> Position: {{jugador.Posicion}}</p>
         <p>Actual Club: {{jugador.Equipo_Actual}}</p>
         <p>Age: {{jugador.Edad}}</p>
         <p>Alias: {{jugador.Alias}}</p>
+        <div class="data-user">
+            <button type="submit" (click)="open(content); onSubmit(jugador.Nombre)">Translate</button>
+        </div>
     </div>
+    <ng-template #content let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Player Info Translated</h4>
+          <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+        </div>
+        <div class="modal-body">
+                <p>{{traduccion[0]}}</p>
+                <p>{{traduccion[1]}}</p>
+                <p>{{traduccion[2]}}</p>
+                <p>{{traduccion[3]}}</p>
+                <p>{{traduccion[4]}}</p>
+                <p>{{traduccion[5]}}</p>
+        </div>
+      </ng-template>
 </div>

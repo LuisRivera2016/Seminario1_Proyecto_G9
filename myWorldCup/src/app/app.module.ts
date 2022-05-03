@@ -20,6 +20,7 @@ import { ConfederationMenuComponent } from './components/confederation-menu/conf
 import { BackMenuComponent } from './components/back-menu/back-menu.component';
 import { CountryComponent } from './components/country/country.component';
 import { ListaJugadoresComponent } from './components/lista-jugadores/lista-jugadores.component';
+import { FindPlayerComponent } from './components/find-player/find-player.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { ListaJugadoresComponent } from './components/lista-jugadores/lista-juga
     ConfederationMenuComponent,
     BackMenuComponent,
     CountryComponent,
-    ListaJugadoresComponent
+    ListaJugadoresComponent,
+    FindPlayerComponent
   ],
   imports: [
     HttpClientModule,

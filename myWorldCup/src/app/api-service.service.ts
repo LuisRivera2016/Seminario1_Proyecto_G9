@@ -33,6 +33,16 @@ export class ApiServiceService {
   public getListaJugadores(id:any):Observable<any>{
     return this.http.get<any>(`${this.ApiUrl}/api/jugadores/seleccion/${id}`);
   }
+
+
+  public getListaJugador(base64:any):Observable<any>{
+    return this.http.post<any>(`${this.ApiUrl}/api/jugadores/buscar`, base64);
+  }
+
+  public traducirJugador(jugador:any):Observable<any>{
+    return this.http.post<any>(`${this.ApiUrl}/traducirDescripcion`, jugador);
+  }
+   
   
 
 }
