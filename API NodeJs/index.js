@@ -1299,6 +1299,54 @@ function obtenerTopUsuarios() {
   });
 }
 
+function obtenerPartidos(){
+  app.get('/obtenerPartidos', (req, res) => {
+    try{
+      //Obtener el pass de la base de datos
+      try {
+        consultar = `SELECT Hora, Fecha, S1.Pais AS Pais1 ,S1.Bandera AS Bandera1, S2.Pais AS Pais2 , S2.Bandera AS Bandera2 FROM Partido 
+        INNER JOIN Seleccion AS S1 ON Partido.idEquipo1 = S1.idSeleccion
+        INNER JOIN Seleccion AS S2 ON Partido.idEquipo2 = S2.idSeleccion;`;
+        console.log(consultar);
+        try{
+          var query = con.query(consultar,  function(error, result){
+            if(error){
+                throw error;
+            }else{
+                try{
+                    res.send({estado: true, result:result});
+                }catch(err){
+                    mensaje = "No se pudo encontrar la informacion de los estadios, avisar al encargado :V.";
+                    let a =  {"alerta": false , "mensaje": mensaje};
+                    console.log(a);
+                    res.send(a);
+                    return
+                }
+                
+            }
+        });
+        }catch(error){
+          mensaje = "No se pudo encontrar la informacion de los partidos";
+          let a =  {"alerta": false , "mensaje": mensaje};
+          console.log(a);
+          res.send(a);
+          return
+        }
+      } catch (error) {
+        mensaje = "No se pudo encontrar la informacion de los partidos.";
+        let a =  {"alerta": false , "mensaje": mensaje};
+        console.log(a);
+        res.send(a);
+        return
+      }
+    }catch (error) {
+      let a = { alerta: false , mensaje: "No se pudo encontrar la informacion de los partidos." };
+      console.log(a);
+      res.send(a);
+    }
+  });  
+}
+
 //-----Funciones varias que se utilizan para distintas aplicaciones.----
 
 //Inicializa la API en el puerto especifico.
@@ -1342,6 +1390,7 @@ function iniciarAPI() {
         obtenerTopUsuarios();
         validarRespuesta();
         obtenerAudioRespuestaPolly();
+        obtenerPartidos();
       } catch (error) {
         //antiError();
         console.log("Fatality. Finish him :v");
