@@ -20,7 +20,7 @@ export class FindPlayerComponent implements OnInit {
   faFutbol = faFutbol;
   faUser = faUser;
   faFlag = faFlag;
-  originalPath:String = ``;
+  originalPath:String = `https://practica1-g9-imagenes.s3.amazonaws.com/`;
   foto:any;
   constructor( private _cpd: ApiServiceService,
     private formBuilder:FormBuilder, private router: Router) { 
@@ -56,7 +56,9 @@ export class FindPlayerComponent implements OnInit {
     this._cpd.getListaJugador(f).subscribe(
       (response: any) => {
         this.player = response.result
-        this.foto = this.originalPath+this.player.Foto;
+        console.log()
+        this.foto = this.originalPath+this.player[0].Foto;
+        console.log(this.foto)
         console.log(this.player)
       },
       (error: HttpErrorResponse) => {

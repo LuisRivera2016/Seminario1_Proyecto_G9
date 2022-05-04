@@ -4,6 +4,8 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { faMailBulk } from '@fortawesome/free-solid-svg-icons';
 import { faUserAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBell } from '@fortawesome/free-solid-svg-icons';
+
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import Validation from 'src/app/providers/CustomValidators';
 import { ApiServiceService } from 'src/app/api-service.service';
@@ -15,7 +17,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./lobby.component.sass']
 })
 export class LobbyComponent implements OnInit {
-  faTrophy = faTrophy;
+  faTrophy = faTrophy;  
+  faBell = faBell;
   faUser = faUser;
   faMailBulk = faMailBulk;
   faUserAlt = faUserAlt;
@@ -30,6 +33,7 @@ export class LobbyComponent implements OnInit {
   form! : FormGroup
   imageSrc: string = '';
   submitted = false;
+  emailSubscribe: string ='';
   constructor(private _cpd: ApiServiceService,
     private modalService: NgbModal,
     private formBuilder:FormBuilder) {
@@ -117,8 +121,6 @@ export class LobbyComponent implements OnInit {
   }
 
   onSubmit(): any {
-    console.log("hola")
-    console.log(this.form?.value)
     this.submitted = true;
     if (this.form.invalid) {
       return;
@@ -132,6 +134,35 @@ export class LobbyComponent implements OnInit {
       (error: HttpErrorResponse) => {
         alert(error.message);
         
+      }
+    );
+  }
+
+  onSubscribe(correo: String): any{
+    console.log(correo)
+    if(correo!=`` && correo!=null){
+      console.log("subscripcion en camino")
+      this._cpd.subscribirse({email: correo}).subscribe(
+        (response: any) => {
+         console.log(response)
+         this.emailSubscribe=``; 
+         alert("pendiente de confirmacion por parte de correo");
+
+        },
+        (error: HttpErrorResponse) => {
+          alert(error.message);
+          
+        }
+      );
+    }else{
+      console.log("no se puede")
+    }
+  }
+
+  sendMail():any {
+    this._cpd.LambdaFunction().subscribe(
+      (response: any) => {
+        console.log('se enviaron los horarios')
       }
     );
   }

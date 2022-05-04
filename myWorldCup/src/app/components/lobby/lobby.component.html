@@ -26,7 +26,12 @@
             <p class="data-recived"> {{puntos}}</p>
         </div>
         <div class="data-user">
-            <button (click)="open(content)">Edit Profile</button>
+            <button (click)="open(contents)" class="sub"><fa-icon class="faTrophy" [icon]="faBell">
+            </fa-icon> Subscribe</button>
+            
+        </div>
+        <div class="data-user">
+            <button (click)="sendMail()">Test</button>
         </div>
     
     </div>
@@ -40,7 +45,7 @@
                 <img src="https://res.cloudinary.com/alex4191/image/upload/v1651443680/SEMINARIO/map-blue_vljorz.png">
                 <p>WC Confederations</p>
             </div>
-            <div class="box">
+            <div class="box" [routerLink]="['/trivia']" routerLinkActive="router-link-active" >
                 <img src="https://res.cloudinary.com/alex4191/image/upload/v1651443892/SEMINARIO/kisspng-vector-graphics-logo-question-stock-photography-im-5bfca0bad3f297.5309902415432828748681_hpx5bm.png">
                 <p>Trivia</p>
             </div>
@@ -58,146 +63,26 @@
             </div>
           </div>
     </div>
-    <ng-template #content let-modal>
+      <ng-template #contents let-modal>
         <div class="modal-header">
-          <h4 class="modal-title" id="modal-basic-title">Profile update</h4>
+          <h4 class="modal-title" id="modal-basic-title">Subscribe and get all information</h4>
           <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
         </div>
         <div class="modal-body">
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
-                <div class="form-group">
-                    <label for="name">*Nombre</label>
-                    <input 
-                        formControlName="name"
-                        id="name" 
-                        type="text" 
-                        class="form-control"
-                        [ngClass]="{ 'is-invalid': submitted && f.name.errors }"/>
-                    <div
-                    *ngIf="submitted && f.name.errors"
-                    class="invalid-feedback"
-                    >
-                    <div *ngIf="f.name.errors.required">
-                        <p class="msg-error">el campo Nombre es requerido</p>
-                    </div>
-                    </div>
-                        
-                </div>
-                <div class="form-group">
-                    <label for="user">*Usuario</label>
-                    <input 
-                        formControlName="user"
-                        id="user" 
-                        type="text" 
-                        class="form-control"
-                        [ngClass]="{ 'is-invalid': submitted && f.user.errors }"
-                        />
-                        <div
-                    *ngIf="submitted && f.user.errors"
-                    class="invalid-feedback"
-                    >
-                    <div *ngIf="f.user.errors.required">
-                        <p class="msg-error">el campo usuario es requerido</p>
-                    </div>
-                    </div>
-                        
-                </div>
-                <div class="form-group">
-                    <label for="email">*Email</label>
-                    <input 
-                        formControlName="email"
-                        id="email" 
-                        type="email" 
-                        class="form-control"
-                        [ngClass]="{ 'is-invalid': submitted && f.email.errors }"
-                        />
-                        <div
-                    *ngIf="submitted && f.email.errors"
-                    class="invalid-feedback"
-                    >
-                    <div *ngIf="f.email.errors.required">
-                        <p class="msg-error">el campo email es requerido</p>
-                    </div>
-                    </div>    
-                </div>
-                <div class="form-group">
-                    <label for="password">*Password</label>
-                    <input 
-                        formControlName="password"
-                        id="pass" 
-                        type="password" 
-                        class="form-control"
-                        [ngClass]="{ 'is-invalid': submitted && f.password.errors }"/>
-                        <div
-                        *ngIf="submitted && f.password.errors"
-                        class="invalid-feedback"
-                    >
-                        <div *ngIf="f.password.errors.required"><p class="msg-error">el Password es requerido</p></div>
-                        <div *ngIf="f.password.errors.minlength">
-                        <p class="msg-error">el Password debe tener como minimo 8 caracteres</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="cPassword">*Confirmar Password</label>
-                    <input 
-                        formControlName="cPassword"
-                        id="cPassword" 
-                        type="password" 
-                        class="form-control"
-                        [ngClass]="{ 'is-invalid': submitted && f.cPassword.errors }"/>
-    
-                        <div
-                    *ngIf="submitted && f.cPassword.errors"
-                    class="invalid-feedback"
-                    >
-                    <div *ngIf="f.cPassword.errors.required">
-                    <p class="msg-error"> Confirm Password is required</p>
-                    </div>
-                    <div *ngIf="f.cPassword.errors.mustMatch">
-                    <p class="msg-error">Password and confirm not match</p>
-                    </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="file">Foto de Perfil</label>
-                    <input 
-                        formControlName="file"
-                        id="file" 
-                        type="file" 
-                        class="form-control"
-                        (change)="onFileChange($event)"
-                        [ngClass]="{ 'is-invalid': submitted && f.file.errors }"
-                        />
-                        <div
-                        *ngIf="submitted && f.file.errors"
-                        class="invalid-feedback"
-                    >
-                        <div *ngIf="f.file.errors.required">
-                        <p class="msg-error">Subir una foto es requerido</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label for="name">*Email</label>
+                <input 
+                    name="emailSubscribe"
+                    id="emailSubscribe" 
+                    type="text" 
+                    class="form-control"
+                    [(ngModel)]="emailSubscribe"
+                 />
                     
-                <div class="form-group">
-                    <div class="image-preview">
-                            <div class="image-preview-img">
-                                
-                                <img [src]="imageSrc" *ngIf="imageSrc">
-                            </div>
-                    </div>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-outline-dark" (click)="onSubscribe(emailSubscribe)">Subscribirse</button>
                 </div>
-                    
-                <div class="form-group">
-                    <button class="btn-form-registro" type="submit">Registrarse</button>
-                    <button class="btn-form-cancelar" type="reset" [routerLink]="['/home']"  >Cancelar</button>
-        
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
-        </div>
+            </div>
       </ng-template>
 </div>

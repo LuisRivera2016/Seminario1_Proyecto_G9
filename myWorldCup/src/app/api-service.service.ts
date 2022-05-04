@@ -42,7 +42,19 @@ export class ApiServiceService {
   public traducirJugador(jugador:any):Observable<any>{
     return this.http.post<any>(`${this.ApiUrl}/traducirDescripcion`, jugador);
   }
-   
-  
+
+  public getQuestion(id:any):Observable<any>{
+    return this.http.get<any>(`${this.ApiUrl}/api/trivia/pregunta/${id}`);
+  }
+
+  public subscribirse(email:any):Observable<any>{
+    return this.http.post<any>(`${this.ApiUrl}/suscribirEmail`, email);
+  }
+
+  public LambdaFunction():Observable<any>{
+    return this.http.get<any>(`https://3l4ikj1mji.execute-api.us-east-1.amazonaws.com/fase1`);
+  }
+
+
 
 }

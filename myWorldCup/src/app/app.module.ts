@@ -21,6 +21,8 @@ import { BackMenuComponent } from './components/back-menu/back-menu.component';
 import { CountryComponent } from './components/country/country.component';
 import { ListaJugadoresComponent } from './components/lista-jugadores/lista-jugadores.component';
 import { FindPlayerComponent } from './components/find-player/find-player.component';
+import { TriviaComponent } from './components/trivia/trivia.component';
+import { TopScoreComponent } from './components/top-score/top-score.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +41,9 @@ import { FindPlayerComponent } from './components/find-player/find-player.compon
     BackMenuComponent,
     CountryComponent,
     ListaJugadoresComponent,
-    FindPlayerComponent
+    FindPlayerComponent,
+    TriviaComponent,
+    TopScoreComponent
   ],
   imports: [
     HttpClientModule,

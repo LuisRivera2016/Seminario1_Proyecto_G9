@@ -9,6 +9,8 @@ import { LobbyComponent } from './components/lobby/lobby.component';
 import { LoginComponent } from './components/login/login.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { RegisterComponent } from './components/register/register.component';
+import { TopScoreComponent } from './components/top-score/top-score.component';
+import { TriviaComponent } from './components/trivia/trivia.component';
 const routes: Routes = [
   {
     path:'home',
@@ -25,6 +27,14 @@ const routes: Routes = [
   {
     path:'findPlayer',
     component:FindPlayerComponent
+  },
+  {
+    path:'trivia',
+    component:TriviaComponent
+  },
+  {
+    path:'topScore',
+    component:TopScoreComponent
   },
   {
     path:'Listconfederation/:conf',
