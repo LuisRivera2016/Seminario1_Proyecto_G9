@@ -1019,6 +1019,105 @@ function obtenerAudioPreguntaPolly() {
   });
 }
 
+function validarRespuesta() {
+  app.post('/api/trivia/respuesta', async function(req, res) {    
+    // Verificar que venga el nombre del usuario
+    if (!req.body.idUsuario || !req.body.idTrivia || !req.body.respuesta) {
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición [1]"
+      });
+    }    
+    // Consulta para obtener la respuesta a la pregunta
+    const consulta = `SELECT Respuesta FROM Trivia WHERE idTrivia = ${req.body.idTrivia}`;
+    // Obtener la respuesta
+    try {
+      // Consultar en la base de datos
+      let result = await ejecutarConsulta(consulta);
+      // Verificar que venga la respuesta
+      if (!result) {
+        return res.status(500).json({
+          estado: "ERROR",
+          mensaje: "Se produjo un error al procesar la petición"
+        });        
+      }
+      // Comparar la respuesta correcta con la respuesta del usuario
+      let ok = result[0].Respuesta.toLowerCase().localeCompare(req.body.respuesta.toLowerCase());
+      // Si la respuesta es correcta
+      if (ok !== 0) {        
+        // Devolver el resultado
+        return res.status(200).json({
+          resultado: "Incorrecto",
+          respuesta: result[0].Respuesta
+        });
+      }
+      // Consulta para obtener la puntuación del usuario
+      let query = `SELECT puntos FROM Usuario WHERE idUsuario = ${req.body.idUsuario}`;
+      // Obtener la puntuación del usuario
+      let data = await ejecutarConsulta(query);
+      // Sumar 1 punto al total
+      let nuevaPuntuacion = data[0].puntos + 1;
+      // Consulta para actualizar la puntuación en la base de datos
+      query = `UPDATE Usuario SET puntos = ${nuevaPuntuacion} WHERE idUsuario = ${req.body.idUsuario}`;
+      // Actulizar la puntuación
+      let response = await ejecutarConsulta(query);
+      // Si todo salió bien
+      return res.status(200).json({
+        resultado: "Correcto"          
+      });      
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Se produjo un error al procesar la petición [0]"
+      })      
+    }    
+  });
+}
+
+function obtenerAudioRespuestaPolly() {   
+  app.get('/api/trivia/respuesta/:id', async (req, res) => {
+    // Consulta para obtener la pregunta de la base de datos
+    const consulta = `SELECT * FROM Trivia WHERE idTrivia = ${req.params.id}`;
+    // Obtener la pregunta desde la base de datos
+    try {
+      // Tratar de obtener la pregunta
+      let result =  await ejecutarConsulta(consulta);      
+      // Obtener el contenido de la pregunta
+      const respuesta = result[0].Respuesta;
+      // Crear el audio
+      const audio = await obtenerAudio(respuesta, req.params.id);
+      // Nombre para guardar el archivo
+      const nombre = `respuesta_${req.params.id}.mp3`;
+      // Ruta para guardar el archivo
+      const ruta = `./public/trivia/${nombre}`;
+      
+      if (audio.AudioStream instanceof Buffer) {                
+        fs.writeFile(ruta, audio.AudioStream, error => {          
+          if (error) {            
+            return res.status(500).json({
+              estado: "ERROR",
+              mensaje: "Se produjo un error al procesar la petición"
+            })
+          } else {            
+            return res.sendFile(`./public/trivia/${nombre}`, {root: __dirname}, err => {
+              if (err) {                
+                console.log("Error: ", err);
+              }
+            });            
+          }
+        });                   
+      }     
+    } catch (error) {      
+      return res.status(500).json({
+        estado: "ERROR",
+        mensaje: "Error al procesar la petición: verifique el contenido de la petición.",
+        log: error
+      }); 
+    }    
+  });
+}
+
 function obtenerSelecciones() {
   app.get('/api/selecciones', async function(req, res) {
     // Consulta para obtener la informació sobre las selecciones
@@ -1241,6 +1340,8 @@ function iniciarAPI() {
         ObtenerTop();
         SuscribirEmail();
         obtenerTopUsuarios();
+        validarRespuesta();
+        obtenerAudioRespuestaPolly();
       } catch (error) {
         //antiError();
         console.log("Fatality. Finish him :v");
