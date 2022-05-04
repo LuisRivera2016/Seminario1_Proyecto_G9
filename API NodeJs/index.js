@@ -1253,12 +1253,13 @@ function obtenerPartidosFecha() {
 }
 
 function obtenerPartidosEquipo() {
-  app.get('/api/partidos/fecha/', async function(req, res) {
+  app.get('/api/partidos/equipo/:id', async function(req, res) {
     // Consulta para obtener la información sobre las partidos
-    const consulta = `SELECT Hora, Fecha, S1.Pais AS Pais1 ,S1.Bandera AS Bandera1, S2.Pais AS Pais2 , S2.Bandera AS Bandera2 FROM Partido 
+    const consulta = `SELECT Hora, Fecha, S1.Pais AS Pais1, S1.Bandera AS Bandera1, S2.Pais AS Pais2, S2.Bandera AS Bandera2 FROM Partido 
     INNER JOIN Seleccion AS S1 ON Partido.idEquipo1 = S1.idSeleccion
     INNER JOIN Seleccion AS S2 ON Partido.idEquipo2 = S2.idSeleccion
-    WHERE Fecha = '${req.body.fecha}'`;    
+    WHERE S1.idSeleccion = ${req.params.id} OR S2.idSeleccion = ${req.params.id};
+    `;    
     try {
       // Consultar en la base de datos
       let result = await ejecutarConsulta(consulta);
